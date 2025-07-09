@@ -38,7 +38,7 @@ public class QueryDAO {
     public List<SalesQuery> getAllQueries() {
        List<SalesQuery> allSales = new ArrayList<>();
        try (Statement stmt = connection.createStatement()) {
-            String sqlStr = "SELECT * from sales LIMIT 100";
+            String sqlStr = "SELECT * from sales_query LIMIT 100";
             ResultSet rs = stmt.executeQuery(sqlStr);
             while (rs.next()) {
                 allSales.add(rsToSalesQuery(rs));
