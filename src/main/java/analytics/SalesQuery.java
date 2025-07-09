@@ -14,7 +14,7 @@ public class SalesQuery {
     }
 
     public SalesQuery(String queryType, String params, int status) {
-        this.queryID = UUID.randomUUID().toString().replace("-", "");
+        this.queryID = UUID.randomUUID().toString().replace("-", "").substring(0, 5);
         this.queryType = queryType;
         this.params = params;
         this.status = status;
