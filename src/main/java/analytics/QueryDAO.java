@@ -1,11 +1,13 @@
-package logs;
+package analytics;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
+
 
 
 
@@ -30,6 +32,36 @@ public class QueryDAO {
         System.out.println("Connected to Neon PostgreSQL database (JDBC).");
         } catch (Exception e) {
             System.err.println("Failed to connect to Neon PostgreSQL: " + e.getMessage());
+        }
+    }
+
+    public List<SalesQuery> getAllQueries() {
+       List<SalesQuery> allSales = new ArrayList<>();
+       try (Statement stmt = connection.createStatement()) {
+            String sqlStr = "SELECT * from sales LIMIT 100";
+            ResultSet rs = stmt.executeQuery(sqlStr);
+            while (rs.next()) {
+                allSales.add(rsToSalesQuery(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error executing query: " + e.getMessage());
+        }
+        return allSales;
+   }
+
+
+    private SalesQuery rsToSalesQuery(ResultSet rs) {
+        try {
+            String queryID = rs.getString("query_id");
+            String queryType = rs.getString("query_type");
+            String datetime = rs.getString("query_datetime");
+            String params = rs.getString("query_params");
+            int status = rs.getInt("status");
+
+            return new SalesQuery(queryID, queryType, datetime, params, status);
+        } catch (SQLException e) {
+            System.err.println("Error converting ResultSet to SalesQuery: " + e.getMessage());
+            return null; // or throw an exception based on your error handling strategy
         }
     }
 
@@ -63,4 +95,22 @@ public class QueryDAO {
         return 0;
     }
 
-}
+    public void addQuery(SalesQuery query) {
+        String queryID = query.getQueryID();
+        String queryType = query.getQueryType();
+        String params = query.getParams();
+        int status = query.getStatus();
+
+        String sql = String.format(
+            "INSERT INTO sales_query (query_id, query_type, query_datetime, query_params, status) VALUES ('%s', '%s', CURRENT_DATE, '%s', %d)",
+            queryID, queryType, params, status
+            );
+
+        try (Statement stmt = this.connection.createStatement()) {
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+    }
+    }
+
+}   

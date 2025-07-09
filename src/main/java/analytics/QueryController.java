@@ -1,5 +1,5 @@
-package logs;
-
+package analytics;
+import java.time.LocalDateTime;
 
 import io.javalin.http.Context;
 
@@ -23,6 +23,7 @@ public class QueryController {
         }
     }
 
+    // Implements GET /sales/metrics/property-count/{saleID}
     public void getPropertyCount(Context ctx, int saleID) {
         int count = salesQueries.getPropertyCount(saleID);
         if (count == -1) {
@@ -32,5 +33,12 @@ public class QueryController {
             ctx.json(count);
             ctx.status(200);
         }
+    }
+
+    public void addQuery(Context ctx, String queryType, String params, int status) {
+        SalesQuery query = new SalesQuery(queryType, params, status);
+        salesQueries.addQuery(query);
+        ctx.json(query);
+        ctx.status(201); // Created
     }
 }
